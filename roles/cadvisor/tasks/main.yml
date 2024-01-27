@@ -1,0 +1,14 @@
+---
+- name: скачиваем и запускаем cadvisor
+  docker_container:
+    name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    state: started
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ cadvisor_ip }}"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"

@@ -1,0 +1,32 @@
+---
+# директории
+    folders_path: "/srv"
+    nginx_conf_path: "/srv/nginx/conf"
+    nginx_logs_path: "/srv/nginx/logs"
+    apache_conf_path: "/srv/apache/conf"
+    apache_1_logs_path: "/srv/apache/logs/apache_1"
+    apache_2_logs_path: "/srv/apache/logs/apache_2"
+    content_path: "/srv/www/html"
+    mysql_conf_path: "/srv/mysql/conf"
+    mysql_pid_path: "/srv/mysql/pid"
+    mysql_logs_path: "/srv/mysql/logs"
+    fluentd_conf_path: "/srv/fluentd/"
+    prometheus_conf_path: "/srv/prometheus/conf"
+    grafana_db: "/srv/grafana"
+
+# сеть
+    subnet: 10.0.0.0/24
+    network_name: my_network
+
+# ip-адреса
+    nginx_ip: "10.0.0.2"
+    apache_1_ip: "10.0.0.3"
+    apache_2_ip: "10.0.0.4"
+    prometheus_ip: "10.0.0.5"
+    grafana_ip: "10.0.0.6"
+    node_exporter_ip: "10.0.0.7"
+    nginx_exporter_ip: "10.0.0.8"
+    mysql_exporter_ip: "10.0.0.9"
+    cadvisor_ip: "10.0.0.10"
+    fluentd_ip: "10.0.0.11"
+    mysql_ip: "10.0.0.12"

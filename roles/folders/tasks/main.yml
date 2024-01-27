@@ -1,0 +1,21 @@
+---
+- name: создаем папки в /srv
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ folders_path }}"
+    - "{{ nginx_conf_path }}"
+    - "{{ nginx_logs_path }}"
+    - "{{ apache_conf_path }}"
+    - "{{ apache_1_logs_path }}"
+    - "{{ apache_2_logs_path }}"
+    - "{{ content_path }}"
+    - "{{ mysql_conf_path }}"
+    - "{{ mysql_logs_path }}"
+    - "{{ mysql_pid_path }}"
+    - "{{ fluentd_conf_path }}"
+    - "{{ prometheus_conf_path }}"
+    - "{{ grafana_db }}"
+

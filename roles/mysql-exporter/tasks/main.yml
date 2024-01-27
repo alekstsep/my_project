@@ -1,0 +1,16 @@
+---
+- name: скачиваем и запускаем mysql-exporter
+  docker_container:
+    name: mysql-exporter
+    image: prom/mysqld-exporter
+    state: started
+    restart_policy: always
+    command:
+     - "--mysqld.username=root:passw0rd"
+     - "--mysqld.address=10.0.0.12:3306"
+    ports:
+      - "9104:9104"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ mysql_exporter_ip }}"
+

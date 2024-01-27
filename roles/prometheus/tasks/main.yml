@@ -1,0 +1,17 @@
+---
+- name: копируем prometheus.yml в "{{ prometheus_conf_path }}"
+  copy:
+    src: ./roles/prometheus/files/prometheus.yml
+    dest: "{{ prometheus_conf_path }}/prometheus.yml"
+
+- name: скачиваем и запускаем prometheus
+  docker_container:
+    name: prometheus
+    image: prom/prometheus
+    restart_policy: always
+    state: started
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ prometheus_ip }}"
+    volumes:
+      - "{{ prometheus_conf_path }}:/etc/prometheus/"

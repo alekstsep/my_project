@@ -1,0 +1,16 @@
+---
+- name: скачиваем и запускаем nginx-exporter
+  docker_container:
+    name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter
+    state: started
+    restart_policy: always
+    ports:
+      - "9113:9113"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ nginx_exporter_ip }}"
+    volumes:
+      - "{{ nginx_conf_path }}:/etc/nginx/conf.d"
+    env:
+      SCRAPE_URI: "http://{{ nginx_ip }}:8080/metrics"

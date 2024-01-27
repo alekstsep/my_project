@@ -1,0 +1,11 @@
+---
+- name: добавляем записи о доменах в /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - 127.0.0.1 first.tst
+    - 127.0.0.1 second.tst
+    - 127.0.0.1 grafana.tst
+    - 127.0.0.1 prometheus.tst

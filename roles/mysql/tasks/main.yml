@@ -1,0 +1,57 @@
+---
+- name: скачиваем и запускаем mysql
+  docker_container:
+    name: mysql
+    image: mysql:5.7
+    state: started
+    restart_policy: always
+    ports:
+      - "3306:3306"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ mysql_ip }}"
+    volumes:
+      - "{{ mysql_conf_path }}:/etc/mysql/conf.d"
+      - "{{ mysql_logs_path }}:/var/log/mysql"
+      - "{{ mysql_pid_path }}:/var/run/mysqld"
+    env:
+      MYSQL_ROOT_PASSWORD: passw0rd
+
+- name: проверяем доступность контейнера mysql
+  wait_for:
+    host: "{{ mysql_ip }}"
+    port: 3306
+    search_regex: "(mysql_native_password|caching_sha2_password)"
+
+- name: копируем my.cnf в контейнер
+  command: docker cp ./roles/mysql/files/my.cnf mysql:/root/
+
+- name: создаем БД nginx_db
+  mysql_db:
+    name: nginx_db
+    login_user: "root"
+    login_password: "passw0rd"
+    config_file: "/root/my.cnf"
+    login_unix_socket: "{{ mysql_pid_path }}/mysqld.sock"
+    state: present
+
+- name: создаем таблицу nginx_t
+  mysql_query:
+    login_db: nginx_db
+    login_user: "root"
+    login_password: "passw0rd"
+    login_unix_socket: "{{ mysql_pid_path }}/mysqld.sock"
+    query: |
+      CREATE TABLE IF NOT EXISTS nginx_t (
+        remote_addr VARCHAR(255),
+        hostname VARCHAR(255),
+        time_local VARCHAR(255),
+        request VARCHAR(255),
+        status VARCHAR(255),
+        body_bytes_sent VARCHAR(255),
+        referrer TEXT,
+        user_agent TEXT,
+        request_time VARCHAR(255),
+        upstream_response_time VARCHAR(255),
+        geoip_country VARCHAR(255)
+      );

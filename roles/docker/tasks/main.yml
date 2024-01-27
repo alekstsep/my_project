@@ -1,0 +1,10 @@
+---
+- name: устанавливаем docker.io python3-pip python3-mysqldb
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker.io
+    - python3-pip
+    - python3-mysqldb
+

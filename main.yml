@@ -1,0 +1,20 @@
+---
+- name: deploy my_project
+  hosts: localhost
+  vars_files: ./vars/vars.yml
+  become: true
+  roles:
+    - role: folders
+    - role: docker
+    - role: network
+    - role: domains
+    - role: nginx
+    - role: apache
+    - role: mysql
+    - role: fluentd
+    - role: node-exporter
+    - role: mysql-exporter
+    - role: nginx-exporter
+    - role: cadvisor
+    - role: prometheus
+    - role: grafana

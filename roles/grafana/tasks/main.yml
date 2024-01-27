@@ -1,0 +1,25 @@
+---
+- name: копируем конфиги grafana в "{{ grafana_db }}"
+  copy:
+    src: ./roles/grafana/files/
+    dest: "{{ grafana_db }}"
+
+- name: даем полные права всем и вся на папку "{{ grafana_db }}"
+  file:
+    path: "{{ grafana_db }}"
+    mode: 0777
+    recurse: yes
+
+- name: скачиваем и запускаем grafana
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    state: started
+    restart_policy: always
+    ports:
+      - "3000:3000"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ grafana_ip }}"
+    volumes:
+      - "{{ grafana_db }}:/var/lib/grafana"

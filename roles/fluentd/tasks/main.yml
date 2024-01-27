@@ -1,0 +1,20 @@
+---
+- name: копируем fluent.conf "{{ fluentd_conf_path }}"
+  template:
+    src: ./roles/fluentd/files/fluent.conf
+    dest: "{{ fluentd_conf_path }}/fluent.conf"
+
+- name: скачиваем и запускаем fluentd
+  docker_container:
+    name: fluentd
+    image: theasp/fluentd-plugins:all
+    state: started
+    restart_policy: always
+    ports:
+      - "24224:24224"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ fluentd_ip }}"
+    volumes:
+      - "{{ fluentd_conf_path }}:/fluentd/etc"
+      - "{{ nginx_logs_path }}:/fluentd/log"

@@ -1,0 +1,47 @@
+---
+- name: копируем конфиги nginx в "{{ nginx_conf_path }}"
+  copy:
+    src: ./roles/nginx/files/
+    dest: "{{ nginx_conf_path }}"
+
+- name: создаем директорию для сборки
+  file:
+    path: /tmp/nginx-install
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: создаем dockerfile
+  copy:
+    content: |
+      FROM nginx:alpine
+      RUN apk add --no-cache nginx-mod-http-geoip wget gzip && \
+      mkdir -p /usr/share/GeoIP && \
+      wget -O /usr/share/GeoIP/GeoIP.dat.gz https://mailfud.org/geoip-legacy/GeoIP.dat.gz && \
+      gunzip -fdc /usr/share/GeoIP/GeoIP.dat.gz > /usr/share/GeoIP/GeoIP.dat && \
+      rm /usr/share/GeoIP/GeoIP.dat.gz
+    dest: /tmp/nginx-install/dockerfile
+
+- name: собираем образ nginx
+  docker_image:
+    name: my_nginx
+    source: build
+    build:
+      path: /tmp/nginx-install
+    state: present
+
+- name: запускаем nginx
+  docker_container:
+    name: nginx
+    image: my_nginx
+    state: started
+    restart_policy: always
+    ports:
+      - "80:80"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ nginx_ip }}"
+    volumes:
+      - "{{ nginx_conf_path }}:/etc/nginx/"
+      - "{{ nginx_logs_path }}:/var/log/nginx"

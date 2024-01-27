@@ -1,0 +1,14 @@
+---
+- name: скачиваем и запускаем node-exporter
+  docker_container:
+    name: node-exporter
+    image: prom/node-exporter
+    state: started
+    restart_policy: always
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ node_exporter_ip }}"
+    volumes:
+      - "/proc:/host/proc"
+      - "/sys:/host/sys"
+      - "/:/rootfs"

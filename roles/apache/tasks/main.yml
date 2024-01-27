@@ -1,0 +1,69 @@
+---
+- name: копируем конфиги apache в "{{ apache_conf_path }}"
+  copy:
+    src: ./roles/apache/files/conf/
+    dest: "{{ apache_conf_path }}"
+
+- name: копируем index.php в "{{ content_path }}"
+  copy:
+    src: ./roles/apache/files/index.php
+    dest: "{{ content_path }}/index.php"
+
+- name: создаем директорию для сборки
+  file:
+    path: /tmp/apache-install
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: создаем dockerfile
+  copy:
+    content: |
+      FROM alpine:3.9
+      RUN apk update && apk add apache2 apache2-utils apache2-dev php7-apache2 php7 php7-apcu \
+      php7-dev autoconf build-base libressl-dev pcre-dev zlib-dev && \
+      mkdir -p /var/www/html
+      EXPOSE 80
+      CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+    dest: /tmp/apache-install/dockerfile
+
+- name: собираем образ
+  docker_image:
+    name: my_apache
+    source: build
+    build:
+      path: /tmp/apache-install
+    state: present
+
+- name: запускаем apache_1
+  docker_container:
+    name: apache_1
+    image: my_apache
+    state: started
+    restart_policy: always
+    ports:
+      - "8081:80"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ apache_1_ip }}"
+    volumes:
+      - "{{ apache_conf_path }}:/etc/apache2"
+      - "{{ apache_1_logs_path }}:/var/log/apache2"
+      - "{{ content_path }}:/var/www/html"
+
+- name: запускаем apache_2
+  docker_container:
+    name: apache_2
+    image: my_apache
+    state: started
+    restart_policy: always
+    ports:
+      - "8082:80"
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ apache_2_ip }}"
+    volumes:
+      - "{{ apache_conf_path }}:/etc/apache2"
+      - "{{ apache_2_logs_path }}:/var/log/apache2"
+      - "{{ content_path }}:/var/www/html"

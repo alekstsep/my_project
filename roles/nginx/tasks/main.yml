@@ -28,7 +28,8 @@
       git \
       libmaxminddb-dev \
       pcre \
-      geoip-dev
+      geoip-dev \
+      tzdata
       # Создание временной директории и переход в нее
       WORKDIR /tmp/nginx-install
       # Скачивание и распаковка исходных кодов Nginx
@@ -48,6 +49,7 @@
       wget -O /usr/share/GeoIP/GeoIP.dat.gz https://mailfud.org/geoip-legacy/GeoIP.dat.gz && \
       gunzip -fdc /usr/share/GeoIP/GeoIP.dat.gz > /usr/share/GeoIP/GeoIP.dat && \
       rm /usr/share/GeoIP/GeoIP.dat.gz && \
+      # Настройка часового пояса
       ln -sf /usr/share/zoneinfo/Europe/Kirov /etc/localtime
       # Открытие порта 80 для веб-сервера Nginx
       EXPOSE 80

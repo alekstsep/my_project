@@ -10,7 +10,5 @@
     networks:
       - name: "{{ network_name }}"
         ipv4_address: "{{ nginx_exporter_ip }}"
-    volumes:
-      - "{{ nginx_conf_path }}:/etc/nginx/conf.d"
     env:
       SCRAPE_URI: "http://{{ nginx_ip }}:8080/metrics"

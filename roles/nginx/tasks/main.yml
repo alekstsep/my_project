@@ -15,12 +15,44 @@
 - name: создаем dockerfile
   copy:
     content: |
-      FROM nginx:alpine
-      RUN apk add --no-cache nginx-mod-http-geoip wget gzip && \
-      mkdir -p /usr/share/GeoIP && \
+      # Используем Alpine Linux как базовый образ
+      FROM alpine:latest
+      # Установка зависимостей для сборки Nginx
+      RUN apk update && \
+      apk add --no-cache \
+      build-base \
+      openssl-dev \
+      pcre-dev \
+      zlib-dev \
+      wget \
+      git \
+      libmaxminddb-dev \
+      pcre \
+      geoip-dev
+      # Создание временной директории и переход в нее
+      WORKDIR /tmp/nginx-install
+      # Скачивание и распаковка исходных кодов Nginx
+      RUN wget -O /tmp/nginx-install/nginx-1.25.3.tar.gz https://nginx.org/download/nginx-1.25.3.tar.gz && \
+      tar -zxvf nginx-1.25.3.tar.gz && rm nginx-1.25.3.tar.gz
+      # Сборка Nginx
+      RUN cd nginx-1.25.3 && \
+      ./configure \
+      --prefix=/usr/local/nginx \
+      --with-http_ssl_module \
+      --with-http_stub_status_module \
+      --with-http_geoip_module \
+      --with-http_realip_module \
+      && make && make install
+      # Создание директории для GeoIP и загрузка файла
+      RUN mkdir -p /usr/share/GeoIP && \
       wget -O /usr/share/GeoIP/GeoIP.dat.gz https://mailfud.org/geoip-legacy/GeoIP.dat.gz && \
       gunzip -fdc /usr/share/GeoIP/GeoIP.dat.gz > /usr/share/GeoIP/GeoIP.dat && \
-      rm /usr/share/GeoIP/GeoIP.dat.gz
+      rm /usr/share/GeoIP/GeoIP.dat.gz && \
+      ln -sf /usr/share/zoneinfo/Europe/Kirov /etc/localtime
+      # Открытие порта 80 для веб-сервера Nginx
+      EXPOSE 80
+      # Запуск Nginx в фоновом режиме при старте контейнера
+      CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
     dest: /tmp/nginx-install/dockerfile
 
 - name: собираем образ nginx
@@ -43,5 +75,5 @@
       - name: "{{ network_name }}"
         ipv4_address: "{{ nginx_ip }}"
     volumes:
-      - "{{ nginx_conf_path }}:/etc/nginx/"
-      - "{{ nginx_logs_path }}:/var/log/nginx"
+      - "{{ nginx_conf_path }}:/usr/local/nginx/conf"
+      - "{{ nginx_logs_path }}:/usr/local/nginx/logs"
